@@ -154,12 +154,15 @@ Product ideas and concepts go to `docs/ideas/`. Do NOT create ideas in `rnd/` �
 
 Location: `work/`
 
-- **Stories** (S01, S02...) — `S##-name/story.md`
+- **Epics** (E01, E02...) — `E##-name/epic.md`
+- **Stories** (S01, S02...) — `E##-name/S##-name/story.md`
 - **Research** (R01, R02...) — `R##-name/research.md`
-- **Tasks** (T01, T02...) — `S##-name/T##-name/task.md` or `R##-name/T##-name/task.md`
+- **Tasks** (T01, T02...) — `E##-name/S##-name/T##-name/task.md` or `R##-name/T##-name/task.md`
 
 Creating new:
-- Story/Research number — global (S01, R02, S03)
+- Epic number — sequential (E01, E02, E03...)
+- Story number — sequential within stories (S01, S02, S03...)
+- Research number — sequential within research (R01, R02, R03...)
 - Task number — within story/research (T01, T02)
 
 ### Board
