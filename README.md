@@ -2,6 +2,12 @@
 
 Linux sandbox for deterministic simulation.
 
+## Quick start
+
+```bash
+sudo bin/setup.sh
+```
+
 ## Structure
 
 - [work/](work/README.md) — epics, stories, tasks, board
