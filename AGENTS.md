@@ -173,6 +173,13 @@ Workflow:
 - Start task → add to "In Progress"
 - Finish task → remove from board (no "Completed" section)
 
+### No Deferring Cheap Work
+
+- NEVER defer work because it seems "not important right now"
+- If something can be done in the current context (a hook, a test, a small fix) — do it
+- The cost of doing small things now ≈ 0; the cost of forgetting them later > 0
+- Don't optimize for "focus" by skipping cheap tasks — that's a human-team heuristic, not applicable to LLM agents
+
 ### Running Project Scripts
 Prefer project scripts over running files directly.
 
