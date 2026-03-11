@@ -39,10 +39,12 @@ Prove that LinBox works — a real unmodified service (PostgreSQL) runs inside a
 
 ```
 S01 ──→ S02 ──→ S05 ──→ S06
-  │                       ↑
-  ├──→ S03 ───────────────┤
-  │                       │
-  └──→ S04 ───────────────┘
+  │       │       ↑       ↑
+  │       ↓       │       │
+  ├──→ S03 ──────┘───────┤
+  │       │               │
+  │       ↓               │
+  └──→ S04 ──────────────┘
 ```
 
 ---

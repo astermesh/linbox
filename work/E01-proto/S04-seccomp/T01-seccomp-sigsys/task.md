@@ -11,6 +11,7 @@ Install a seccomp-bpf filter that traps targeted syscalls (SECCOMP_RET_TRAP) and
 
 - `src/shim/seccomp.c` — BPF filter construction and installation via `prctl(PR_SET_SECCOMP)` or `seccomp(SECCOMP_SET_MODE_FILTER)`
   - SECCOMP_RET_TRAP for: `clock_gettime`, `gettimeofday`, `time`, `getrandom`
+  - SECCOMP_RET_ERRNO(ENOSYS) for: `io_uring_setup`, `io_uring_enter`, `io_uring_register` — block io_uring to prevent bypass of syscall interception (io_uring submits operations via shared memory ring, invisible to both LD_PRELOAD and per-syscall seccomp)
   - SECCOMP_RET_ALLOW for everything else
   - Filter installed in shim constructor after LD_PRELOAD handlers are set up
 - `src/shim/sigsys.c` — SIGSYS handler:
@@ -24,12 +25,14 @@ Install a seccomp-bpf filter that traps targeted syscalls (SECCOMP_RET_TRAP) and
 
 - Program makes direct `syscall(__NR_clock_gettime, CLOCK_REALTIME, &ts)` → gets fake time
 - Program makes direct `syscall(__NR_gettimeofday, &tv, NULL)` → gets fake time
+- Program makes direct `syscall(__NR_time, &t)` → gets fake time
 - Program makes direct `syscall(__NR_getrandom, buf, len, 0)` → deterministic output
 - Direct syscall to `write()` → passes through normally (not trapped)
 - Direct syscall to `read()` → passes through normally
 - SIGSYS handler does not interfere with normal SIGUSR1/SIGUSR2 handling
 - Seccomp filter survives `fork()` (child inherits filter)
 - Stress: 10K direct syscalls in tight loop → no crashes, correct values
+- `io_uring_setup()` returns ENOSYS (application falls back to regular I/O)
 - Combined: LD_PRELOAD + seccomp both active → LD_PRELOAD handles libc calls, seccomp handles direct calls, no double interception
 
 ---

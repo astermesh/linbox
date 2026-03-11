@@ -13,14 +13,16 @@ Implement LD_PRELOAD-based interception of all time-related libc functions. Retu
 - `src/shim/linbox.h` — internal shared header (global state struct, config)
 - `src/shim/linbox.c` — `__attribute__((constructor))` initialization, stderr log "linbox: shim loaded (pid=...)"
 - `src/shim/time.c` — interception of:
-  - `clock_gettime()` — all clock IDs (CLOCK_REALTIME, CLOCK_MONOTONIC, CLOCK_BOOTTIME, CLOCK_MONOTONIC_RAW, CLOCK_PROCESS_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID)
+  - `clock_gettime()` — virtual time for ALL clock IDs: CLOCK_REALTIME, CLOCK_REALTIME_COARSE, CLOCK_MONOTONIC, CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_RAW, CLOCK_BOOTTIME, CLOCK_PROCESS_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID
+  - CPUTIME model: derived from virtual wall time (process appears 100% CPU-bound). This matches single-core simulation semantics (Antithesis, Shadow, FDB Sim2) where CPU time ≈ wall time. Passing real CPU time would break the illusion — the process could detect simulation by comparing wall vs CPU time.
   - `gettimeofday()`
   - `time()`
 
 ## Tests
 
 - Unit test per function: `clock_gettime(CLOCK_REALTIME)` returns fake time
-- Unit test per clock ID: REALTIME, MONOTONIC, BOOTTIME all return controlled values
+- Unit test per clock ID: REALTIME, REALTIME_COARSE, MONOTONIC, MONOTONIC_COARSE, MONOTONIC_RAW, BOOTTIME, PROCESS_CPUTIME_ID, THREAD_CPUTIME_ID — all return controlled values
+- CLOCK_PROCESS_CPUTIME_ID returns virtual time derived from wall time (not real CPU time)
 - `gettimeofday()` returns fake time with microsecond precision
 - `time()` returns fake time as `time_t`
 - Integration: `LD_PRELOAD=liblinbox.so date` prints "Wed Jan  1 00:00:00 UTC 2025"

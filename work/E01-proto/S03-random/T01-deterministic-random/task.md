@@ -13,8 +13,10 @@ Full deterministic random interception. Seeded PRNG replaces all sources of rand
 - `src/shim/random.c` — interception of:
   - `getrandom(buf, len, flags)` — fill buf from PRNG, handle GRND_RANDOM and GRND_NONBLOCK flags
   - `open()` — detect opens of `/dev/urandom`, `/dev/random`, return a virtual fd
+  - `openat()` — same detection for `openat(fd, "/dev/urandom", ...)` (glibc routes `fopen` and many `open` calls through `openat` internally)
   - `read()` — if fd is virtual, fill from PRNG instead of real read
   - `close()` — clean up virtual fd tracking
+- Overwrite `getauxval(AT_RANDOM)` 16 bytes in shim constructor with seeded value (deterministic stack canaries, Go runtime seed)
 - Seed from controller via shared memory (field in shm-layout)
 - Per-process PRNG state (prepared for S05 fork handling)
 
@@ -26,6 +28,8 @@ Full deterministic random interception. Seeded PRNG replaces all sources of rand
 - `getrandom()` with GRND_NONBLOCK → returns immediately, deterministic
 - `open("/dev/urandom")` + `read()` → deterministic bytes
 - `open("/dev/random")` + `read()` → deterministic bytes
+- `openat(AT_FDCWD, "/dev/urandom", O_RDONLY)` + `read()` → deterministic bytes
+- `fopen("/dev/urandom", "r")` + `fread()` → deterministic bytes (verifies openat path)
 - Multiple `read()` calls on same fd → sequential PRNG output, deterministic
 - `close()` virtual fd → subsequent open gets fresh state? or continues? (define behavior)
 - Stress: 10,000 `getrandom()` calls → all deterministic, no crashes, no memory leaks

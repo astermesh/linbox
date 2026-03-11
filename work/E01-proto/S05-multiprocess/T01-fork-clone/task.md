@@ -13,7 +13,7 @@ Intercept process creation syscalls. On fork, reinitialize per-process state: ne
   - `fork()` — wrap real fork, reinit state in child
   - `clone()` — detect new-process vs new-thread (check CLONE_VM flag), reinit for new process
   - `clone3()` — same as clone but with `struct clone_args`
-  - `execve()` — verify `LD_PRELOAD` in environment, log if missing
+  - `execve()` — ensure `LD_PRELOAD` is in the target environment: if missing from envp, inject it before calling real execve (LD_PRELOAD is inherited automatically when envp passes through, but explicit envp without it would lose the shim)
 - Update `src/shim/linbox.c` — `reinit_state()` function: new PRNG stream, register with controller via SBP REGISTER_PROCESS message
 - Update `src/shim/prng.c` — derive child seed from parent seed + pid
 
@@ -25,6 +25,7 @@ Intercept process creation syscalls. On fork, reinitialize per-process state: ne
 - `clone()` with CLONE_VM (thread) → shares PRNG state (or thread-local?)
 - `clone()` without CLONE_VM (process) → new PRNG stream
 - `execve("/bin/sh", ...)` → child process has shim loaded (check via clock_gettime)
+- `execve()` with explicit envp without LD_PRELOAD → shim injects it, child still has shim
 - Controller sees REGISTER_PROCESS for each fork
 - fork() + seccomp → child inherits seccomp filter, direct syscalls still intercepted
 - Stress: 100 rapid forks → all children registered, no resource leaks, controller handles all

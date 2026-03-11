@@ -12,7 +12,7 @@ Define the SBP (Sandbox Binary Protocol) wire format and shared memory layout. T
 - `src/common/sbp.h` — message types (HELLO, ACK, SET_TIME, SET_SEED, REGISTER_PROCESS), wire format (little-endian, length-prefixed), version field
 - `src/common/sbp.c` — serialization/deserialization functions
 - `src/common/shm-layout.h` — shared memory region structure:
-  - Virtual time (struct timespec, atomically readable)
+  - Virtual time (struct timespec) protected by **seqlock** — writer increments sequence counter (odd = writing, even = stable), reader retries if sequence changed or is odd. This is needed because struct timespec is 16 bytes and cannot be read atomically on x86-64 without SSE/cmpxchg16b
   - PRNG seed
   - Flags (paused, stepping, etc.)
   - Per-process slots
@@ -22,8 +22,8 @@ Define the SBP (Sandbox Binary Protocol) wire format and shared memory layout. T
 
 - Round-trip: serialize → deserialize each message type, verify fields match
 - Boundary: max-size messages, zero-length payloads
-- Shared memory: write time atomically from one process, read from another, verify consistency
-- Shared memory: concurrent reads from multiple threads while writer updates
+- Shared memory: write time from one process, read from another via seqlock, verify consistency (no torn reads)
+- Shared memory: concurrent reads from multiple threads while writer updates at high frequency (10K writes/sec) — no torn values
 - Error: invalid message type → graceful error, not crash
 
 ---

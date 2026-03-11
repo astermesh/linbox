@@ -26,7 +26,8 @@ Full end-to-end validation with PostgreSQL. Prove that a real, unmodified databa
 - Two full runs (compose up → run queries → compose down) with same seed → byte-for-byte identical query results
 - PostgreSQL WAL writes succeed (filesystem not broken by interception)
 - PostgreSQL handles concurrent connections (fork-per-backend works)
-- `pg_sleep(1)` behavior under virtual time (blocks or returns immediately depending on time advancement)
+- `pg_sleep(1)` — document observed behavior (expected: real 1s delay, since timer virtualization is Phase 2 non-goal)
+- Performance: run pgbench (scale=1, clients=4, transactions=1000) with and without liblinbox.so, compare TPS — verify overhead < 5% (epic success criterion)
 
 ---
 

@@ -21,6 +21,7 @@ Build the controller process and connect the shim to it. Controller manages virt
 - Shim connects on constructor, performs HELLO handshake
 - Controller SET_TIME → shim's clock_gettime returns new value within 1ms
 - Controller changes time 1000 times in a loop → shim always reads latest
+- Controller SET_SEED → shim's getrandom() output changes (verified in S03, but seed delivery must work here)
 - Multiple processes with .so connect to same controller, all see same time
 - Controller not running → shim logs warning, falls back to real time (graceful degradation)
 - Controller dies mid-session → shim detects, logs error, falls back to real time
