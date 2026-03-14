@@ -4,7 +4,7 @@ Research into mechanisms beyond LD_PRELOAD and ptrace for building a fully hooka
 
 ## Context
 
-LinBox proposes Docker containers with `LD_PRELOAD`-based interception for OBI (Outside Boundary Interface) control. This document explores the full landscape of Linux sandbox mechanisms beyond the two already well-understood approaches (LD_PRELOAD and ptrace), evaluating each for LinBox's requirements: intercepting time, randomness, network, and filesystem at syscall boundaries with minimal overhead.
+LinBox proposes Docker containers with `LD_PRELOAD`-based interception for OBI (Outbound Box Interface) control. This document explores the full landscape of Linux sandbox mechanisms beyond the two already well-understood approaches (LD_PRELOAD and ptrace), evaluating each for LinBox's requirements: intercepting time, randomness, network, and filesystem at syscall boundaries with minimal overhead.
 
 ## Table of Contents
 
