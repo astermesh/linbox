@@ -14,9 +14,9 @@ A Box is a service emulator that wraps a real execution engine (Eng) with fully 
 
 Every Box exposes three interfaces:
 
-- **IBI (Inbound Boundary Interface)** — entry points where external calls arrive (queries, HTTP requests, Redis commands)
-- **OBI (Outbound Boundary Interface)** — where the engine calls outward (time, network, filesystem, randomness)
-- **CBI (Control Boundary Interface)** — direct owner access that bypasses hooks (for Lab/Sim internal use)
+- **IBI (Inbound Box Interface)** — entry points where external calls arrive (queries, HTTP requests)
+- **OBI (Outbound Box Interface)** — where the engine calls outward (time, network, filesystem, randomness)
+- **CBI (Control Box Interface)** — direct owner access that bypasses hooks (for Lab/Sim internal use)
 
 ```
         ┌─────────────────────┐
@@ -31,7 +31,7 @@ Every Box exposes three interfaces:
 
 **Parity rule:** with no hooks registered, a Box must behave identically to the real service. Any difference is a bug.
 
-Examples: PgBox (PostgreSQL via PGlite), NodeBox (Node.js runtime), RedisBox (Redis in-memory store).
+Examples: PGBox (PostgreSQL via PGlite), NodeBox (Node.js runtime).
 
 ### Sim
 
@@ -43,19 +43,19 @@ Sim is per-Box behavior simulation. It knows the domain and injects realism that
 | Example  | 100 rows in PGlite         | Declares 1M rows virtually           |
 | Role     | Execute operations          | Calculate realistic effects          |
 
-Sim hooks into Box boundaries (IBI/OBI) and can delay, modify, or fail any operation. Example: a query takes 1ms in PgBox, but PgSim says "with 1M rows this takes 2s" — Sim wins.
+Sim hooks into Box boundaries (IBI/OBI) and can delay, modify, or fail any operation. Example: a query takes 1ms in PGBox, but PGSim says "with 1M rows this takes 2s" — Sim wins.
 
-Examples: PgSim (paired with PgBox), NodeSim (paired with NodeBox).
+Examples: PGSim (paired with PGBox), NodeSim (paired with NodeBox).
 
 ### Law
 
 Law is an inter-Sim interaction rule. It activates only when matching Sims are present in the Lab.
 
-- **TLaw** — virtual time: synchronized clock for all boxes
-- **MLaw** — machine resources: CPU contention, memory pressure
+- **TimeLaw** — virtual time: synchronized clock for all boxes
+- **HardLaw** — hardware resources: CPU contention, memory pressure
 - **NetLaw** — network effects: latency, packet loss, partitions
 
-Laws coordinate Sims without direct Sim-to-Sim communication. Example: "PG load → CPU contention → Node slowdown" is NetLaw + MLaw, not PgSim talking to NodeSim.
+Laws coordinate Sims without direct Sim-to-Sim communication. Example: "PG load → CPU contention → Node slowdown" is NetLaw + HardLaw, not PGSim talking to NodeSim.
 
 ### Lab
 
@@ -63,16 +63,16 @@ Lab is the simulation environment — a pure container where Boxes, Sims, and La
 
 ```
 Lab
- ├── PgSim → uses PgBox
+ ├── PGSim → uses PGBox
  ├── NodeSim → uses NodeBox
- ├── TLaw (virtual time)
- ├── MLaw (machine resources)
+ ├── TimeLaw (virtual time)
+ ├── HardLaw (hardware resources)
  └── NetLaw (network)
 ```
 
-## Hook Protocol (SBP)
+## Hook Protocol (SBS)
 
-Every boundary point uses the SimBox Protocol hook pattern:
+Every boundary point uses the Sim-Box Specification hook pattern:
 
 ```
 pre → optional next() → post → final resolution
@@ -87,7 +87,7 @@ Two hook types:
 
 Boxification is the process of wrapping a service with hookable boundaries. Steps:
 
-1. **Select Eng** — what executes operations (PGlite, Node.js runtime, Redis binary)
+1. **Select Eng** — what executes operations (PGlite, Node.js runtime)
 2. **Map IBI** — where do external calls enter (PG wire protocol, HTTP, RESP)
 3. **Map OBI** — where does the engine call outward (time, network, fs, random)
 4. **Apply hooks** — wrap every boundary with the hook protocol
@@ -105,7 +105,7 @@ Boxing depths:
 
 LinBox extends boxification to **real native services** (PostgreSQL, Redis, Nginx, Node.js) running as unmodified Linux processes.
 
-In-process boxes (PgBox, NodeBox) achieve full-depth boxing through WASM or JS module shimming. But production services are native binaries — they call the kernel directly. LinBox solves this with a layered interception architecture:
+In-process boxes (PGBox, NodeBox) achieve full-depth boxing through WASM or JS module shimming. But production services are native binaries — they call the kernel directly. LinBox solves this with a layered interception architecture:
 
 | Layer | Mechanism                    | Purpose                     | Overhead    |
 |-------|------------------------------|-----------------------------|-------------|
@@ -135,9 +135,8 @@ In-process boxes (PgBox, NodeBox) achieve full-depth boxing through WASM or JS m
 
 ```
 simbox (framework)
-  ├─ PgBox      full-depth, in-process (WASM)
+  ├─ PGBox      full-depth, in-process (WASM)
   ├─ NodeBox    full-depth, in-process (JS shim)
-  ├─ RedisBox   full-depth, in-process (JS/binary)
   └─ LinBox     partial-depth, container + LD_PRELOAD
        └─ boxes real PostgreSQL, Redis, Nginx, Node.js
 ```
