@@ -4,7 +4,7 @@ Comprehensive research on building a Linux sandbox where **every** outbound call
 
 ## Problem Statement
 
-LinBox needs a way to run real native services (PostgreSQL, Redis, Nginx, Node.js) inside a controlled environment where the Sim can intercept all OBI (Outbound Boundary Interface) points — the same way WASM import interception works for in-process boxes, but for real Linux processes.
+LinBox needs a way to run real native services (PostgreSQL, Redis, Nginx, Node.js) inside a controlled environment where the Sim can intercept all OBI (Outbound Box Interface) points — the same way WASM import interception works for in-process boxes, but for real Linux processes.
 
 **Goal:** A container where the service inside believes it talks to a real OS, but every syscall that touches the outside world is hookable by LinBox.
 
