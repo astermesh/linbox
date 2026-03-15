@@ -20,7 +20,7 @@ Some CPU instructions read time or generate randomness without making syscalls:
 
 ## Resolution Path
 
-- CPUID masking for RDRAND/RDSEED: implement in Phase 3
+- CPUID masking for RDRAND/RDSEED: implement in S03 (Random Interception)
 - RDTSC: accept leakage unless running inside a VM where it can be trapped
 
 ---

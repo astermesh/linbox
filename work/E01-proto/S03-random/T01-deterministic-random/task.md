@@ -16,7 +16,11 @@ Full deterministic random interception. Seeded PRNG replaces all sources of rand
   - `openat()` — same detection for `openat(fd, "/dev/urandom", ...)` (glibc routes `fopen` and many `open` calls through `openat` internally)
   - `read()` — if fd is virtual, fill from PRNG instead of real read
   - `close()` — clean up virtual fd tracking
+  - `getentropy(buf, len)` — fill from PRNG (glibc 2.25+, wrapper around getrandom)
+  - `arc4random()`, `arc4random_buf()`, `arc4random_uniform()` — fill from PRNG (glibc 2.36+; internally use getrandom, but explicit interception ensures coverage for static linking or non-glibc)
+  - `rand()`, `srand()`, `random()`, `srandom()`, `rand_r()` — replace libc PRNG with deterministic implementation seeded from controller. Without this, `srand(time(NULL))` patterns produce non-deterministic sequences even with controlled time (because real srand has internal state we don't control)
 - Overwrite `getauxval(AT_RANDOM)` 16 bytes in shim constructor with seeded value (deterministic stack canaries, Go runtime seed)
+- RDRAND/RDSEED CPUID masking — disable hardware random instructions via CPUID interception so programs fall back to getrandom (Shadow approach). If CPUID masking is not available, intercept at seccomp level (S04)
 - Seed from controller via shared memory (field in shm-layout)
 - Per-process PRNG state (prepared for S05 fork handling)
 
@@ -33,6 +37,13 @@ Full deterministic random interception. Seeded PRNG replaces all sources of rand
 - Multiple `read()` calls on same fd → sequential PRNG output, deterministic
 - `close()` virtual fd → subsequent open gets fresh state? or continues? (define behavior)
 - Stress: 10,000 `getrandom()` calls → all deterministic, no crashes, no memory leaks
+- `getentropy()` → deterministic bytes
+- `arc4random()` → deterministic value, same across runs with same seed
+- `arc4random_buf()` → deterministic bytes
+- `arc4random_uniform(100)` → deterministic value in range
+- `rand()` after `srand(X)` → deterministic sequence, same across runs
+- `random()` after `srandom(X)` → deterministic sequence
+- RDRAND/RDSEED: program that checks CPUID sees these as unavailable, falls back to getrandom
 - Real fd (e.g. regular file) not affected by interception
 
 ---

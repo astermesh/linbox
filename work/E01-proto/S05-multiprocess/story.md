@@ -9,9 +9,10 @@ Fork-based services (PostgreSQL with per-backend forks) work correctly under Lin
 
 ## Scope
 
-- `fork()`, `clone()`, `clone3()` interception
+- `fork()`, `vfork()`, `clone()`, `clone3()` interception
 - Per-process state reinitialization on fork
-- `execve()` — verify LD_PRELOAD inheritance
+- `execve()` and exec family (`execvp`, `execvpe`, `execl`, `execle`, `execlp`) — verify LD_PRELOAD inheritance
+- `posix_spawn()`, `posix_spawnp()` — verify LD_PRELOAD inheritance
 - Child process registration with controller
 
 ## Tasks

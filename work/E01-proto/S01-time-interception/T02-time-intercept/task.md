@@ -17,6 +17,10 @@ Implement LD_PRELOAD-based interception of all time-related libc functions. Retu
   - CPUTIME model: derived from virtual wall time (process appears 100% CPU-bound). This matches single-core simulation semantics (Antithesis, Shadow, FDB Sim2) where CPU time ≈ wall time. Passing real CPU time would break the illusion — the process could detect simulation by comparing wall vs CPU time.
   - `gettimeofday()`
   - `time()`
+  - `clock_getres()` — return consistent resolution for virtual clocks
+  - `clock()` — CPU time, derived from virtual wall time (same model as CPUTIME clock IDs)
+  - `times()` — process times, derived from virtual wall time
+  - `timespec_get()` — C11 time function, delegates to virtual clock_gettime
 
 ## Tests
 
@@ -27,6 +31,10 @@ Implement LD_PRELOAD-based interception of all time-related libc functions. Retu
 - `time()` returns fake time as `time_t`
 - Integration: `LD_PRELOAD=liblinbox.so date` prints "Wed Jan  1 00:00:00 UTC 2025"
 - Negative: without LD_PRELOAD, `date` shows real time (sanity check)
+- `clock_getres()` returns consistent resolution for all clock IDs
+- `clock()` returns virtual CPU time
+- `times()` returns virtual process times
+- `timespec_get()` returns virtual time (TIME_UTC base)
 - `dlsym(RTLD_NEXT)` correctly resolves real libc function (can call through to real clock_gettime when needed)
 
 ---

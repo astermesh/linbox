@@ -10,8 +10,12 @@ A process produces deterministic random output given the same seed. Two runs wit
 ## Scope
 
 - Seeded PRNG (ChaCha20)
-- `getrandom()` interception
+- `getrandom()`, `getentropy()` interception
+- `arc4random()`, `arc4random_buf()`, `arc4random_uniform()` interception
+- `rand()`, `srand()`, `random()`, `srandom()`, `rand_r()` — deterministic libc PRNG
 - `/dev/urandom` and `/dev/random` interception via `open()` + `read()`
+- `getauxval(AT_RANDOM)` overwrite for deterministic stack canaries
+- RDRAND/RDSEED CPUID masking (disable hardware random instructions)
 - Seed management via controller (SBP/shared memory)
 
 ## Tasks

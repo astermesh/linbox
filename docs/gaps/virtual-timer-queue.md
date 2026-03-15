@@ -1,7 +1,7 @@
 # Gap: Virtual Timer Queue Design
 
 **Severity:** Medium
-**Blocks:** Phase 2 (not needed for proto)
+**Blocks:** S07 (Timer Virtualization)
 **Related ADR:** [ADR-002](../adr/002-shm-seqlock-time.md)
 
 ## What's Missing
@@ -17,12 +17,12 @@ When virtual time advances, sleeping processes must wake up at the correct virtu
 
 ## What's Decided
 
-- Timer virtualization is Phase 2 (explicit non-goal for proto)
-- Proto phase: `pg_sleep(1)` will actually sleep for 1 real second
+- Timer virtualization is planned in S07
+- Design the timer queue as part of S07 implementation
 
 ## Resolution Path
 
-Design the timer queue as part of Phase 2 planning. Key reference: Shadow's timer implementation. Consider whether the controller or the shim manages the queue.
+Design the timer queue as part of S07 implementation. Key reference: Shadow's timer implementation. Consider whether the controller or the shim manages the queue.
 
 ---
 

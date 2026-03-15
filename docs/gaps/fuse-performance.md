@@ -1,7 +1,7 @@
 # Gap: FUSE Performance for Databases
 
 **Severity:** Medium
-**Blocks:** Phase 3 (filesystem interception)
+**Blocks:** S10 (Filesystem Interception) — FUSE path only
 
 ## What's Missing
 

@@ -16,11 +16,11 @@ Antithesis's key feature is "multiverse exploration" — snapshot entire VM stat
 
 - CRIU is included in the dev environment packages (E01-S06)
 - No design work has been done on snapshot/restore
-- This is explicitly a Phase 4 feature
+- Planned in S15 (Snapshot/Restore)
 
 ## Resolution Path
 
-Investigate CRIU integration when Phase 4 planning begins. Key questions:
+Investigate CRIU integration as part of S15. Key questions:
 1. Can CRIU snapshot a container with active unix sockets?
 2. How to coordinate controller state with container state?
 3. Is filesystem snapshot + CRIU sufficient, or do we need VM-level snapshots?
