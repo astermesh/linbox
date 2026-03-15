@@ -3,6 +3,12 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [LD_PRELOAD interception — network functions](../../rnd/boxing/ld-preload.md)
+- [Sandbox alternatives — network interception](../../rnd/boxing/sandbox-alternatives.md)
+- [ADR-010: tc/netem](../../docs/adr/010-tc-netem-network.md)
+
 ## Business Result
 
 All network syscalls are interceptable. The shim can log, delay, modify, or block any network operation. DNS resolution returns controlled addresses. I/O multiplexing works with virtual timeouts.

@@ -3,6 +3,10 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [Sandbox alternatives — eBPF for syscall hooking](../../rnd/boxing/sandbox-alternatives.md)
+
 ## Business Result
 
 Syscall activity inside the sandbox is observable in real-time. Performance metrics (interception overhead, syscall frequency, latency distribution) are available for debugging and optimization. This is a development and operational tool, not a simulation feature.

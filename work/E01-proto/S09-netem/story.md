@@ -3,6 +3,12 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [Sandbox alternatives — network interception, tc/netem](../../rnd/boxing/sandbox-alternatives.md)
+- [ADR-010: tc/netem](../../docs/adr/010-tc-netem-network.md)
+- [ADR-007: Namespaces isolation](../../docs/adr/007-namespaces-isolation.md)
+
 ## Business Result
 
 Network conditions between boxes are controllable. Latency, jitter, packet loss, bandwidth limits, and network partitions can be configured dynamically from the controller. This is Layer 2 of the LinBox architecture — kernel-level network simulation with near-zero overhead.

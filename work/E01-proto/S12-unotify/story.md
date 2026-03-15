@@ -3,6 +3,11 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [Seccomp-BPF — seccomp_unotify section](../../rnd/boxing/seccomp-ptrace.md)
+- [Sandbox alternatives — seccomp notifier](../../rnd/boxing/sandbox-alternatives.md)
+
 ## Business Result
 
 Fd-producing syscalls (open, socket, accept) from programs that bypass LD_PRELOAD (Go, static binaries) are fully interceptable. The controller can emulate these syscalls and inject file descriptors into the target process. This closes the last gap in syscall interception coverage.

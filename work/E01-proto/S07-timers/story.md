@@ -3,6 +3,12 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [LD_PRELOAD interception — time functions](../../rnd/boxing/ld-preload.md)
+- [Gap: Virtual timer queue](../../docs/gaps/virtual-timer-queue.md)
+- [Deterministic systems — Shadow timer model](../../rnd/boxing/deterministic-systems.md)
+
 ## Business Result
 
 Sleeping, timers, and timed waits use virtual time. `nanosleep(5s)` returns when virtual time advances by 5s, not real time. Timer-based wakeups (timerfd, POSIX timers, alarm) fire based on virtual time. Timed blocking calls (`pthread_cond_timedwait`, `poll` with timeout) respect virtual time.

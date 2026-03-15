@@ -3,6 +3,13 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [Seccomp-BPF and ptrace](../../rnd/boxing/seccomp-ptrace.md)
+- [LinBox architecture — edge cases](../../rnd/boxing/linux-sandbox.md)
+- [ADR-004: SECCOMP_RET_TRAP](../../docs/adr/004-seccomp-ret-trap.md)
+- [ADR-005: Block io_uring](../../docs/adr/005-block-io-uring.md)
+
 ## Business Result
 
 No bypass paths. Even programs that make direct syscalls (Go runtime, statically linked binaries) get intercepted. The sandbox has no holes.

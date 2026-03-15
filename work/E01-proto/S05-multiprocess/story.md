@@ -3,6 +3,11 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [LD_PRELOAD interception — process functions](../../rnd/boxing/ld-preload.md)
+- [LinBox architecture — fork handling](../../rnd/boxing/linux-sandbox.md)
+
 ## Business Result
 
 Fork-based services (PostgreSQL with per-backend forks) work correctly under LinBox. Every forked process is under control with its own PRNG stream but shared virtual time.

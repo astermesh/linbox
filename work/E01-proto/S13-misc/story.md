@@ -3,6 +3,11 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [LD_PRELOAD interception — miscellaneous functions](../../rnd/boxing/ld-preload.md)
+- [LinBox architecture — miscellaneous section](../../rnd/boxing/linux-sandbox.md)
+
 ## Business Result
 
 System identity and resource usage reflect the virtual environment. `uname()` returns a virtual hostname, `sysinfo()` returns virtual uptime and load, `getrusage()` returns virtual CPU times. The sandbox is indistinguishable from a real system for these calls.

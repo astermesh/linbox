@@ -3,6 +3,11 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [Gap: ARM64 support](../../docs/gaps/arm64-support.md)
+- [Seccomp-BPF — architecture-dependent filters](../../rnd/boxing/seccomp-ptrace.md)
+
 ## Business Result
 
 LinBox runs on ARM64 (aarch64) architecture. Seccomp filters, SIGSYS handler register access, and all architecture-dependent code works on ARM64. This enables running LinBox on ARM servers (AWS Graviton, Apple Silicon VMs) and Raspberry Pi.

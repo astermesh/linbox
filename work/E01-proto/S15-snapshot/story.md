@@ -3,6 +3,11 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [Gap: Snapshot/restore](../../docs/gaps/snapshot-restore.md)
+- [Deterministic systems — Antithesis multiverse](../../rnd/boxing/deterministic-systems.md)
+
 ## Business Result
 
 A running sandbox can be checkpointed and restored. This enables Antithesis-style multiverse exploration — snapshot at an interesting point, branch, explore multiple futures from that state.

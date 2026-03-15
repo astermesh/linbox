@@ -3,6 +3,11 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [LinBox architecture — Layer 4](../../rnd/boxing/linux-sandbox.md)
+- [Sandbox alternatives — network interception, eBPF](../../rnd/boxing/sandbox-alternatives.md)
+
 ## Business Result
 
 Wire protocol traffic (Postgres wire protocol, Redis RESP, HTTP) is observable and interceptable at the application layer. This is Layer 4 of the architecture — IBI (Inbound Box Interface) coverage for LinBox containers. Enables request-level logging, latency injection, and fault injection at the protocol level.

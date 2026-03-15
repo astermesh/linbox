@@ -3,6 +3,12 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [LD_PRELOAD interception — filesystem functions](../../rnd/boxing/ld-preload.md)
+- [LinBox architecture — filesystem section](../../rnd/boxing/linux-sandbox.md)
+- [Gap: FUSE performance](../../docs/gaps/fuse-performance.md)
+
 ## Business Result
 
 File timestamps reflect virtual time. `stat()` returns virtual mtime/atime/ctime. `fsync`/`fdatasync` behavior is controllable (pass-through, no-op, or delay injection). Selective file operations can be intercepted for path virtualization or fault injection.

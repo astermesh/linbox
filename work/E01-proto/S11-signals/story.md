@@ -3,6 +3,11 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [LD_PRELOAD interception — signal functions](../../rnd/boxing/ld-preload.md)
+- [Seccomp-BPF — SIGSYS handler interaction](../../rnd/boxing/seccomp-ptrace.md)
+
 ## Business Result
 
 Signal delivery is controlled. Timer-related signals (SIGALRM, SIGVTALRM, SIGPROF) are delivered by the shim based on virtual time. The shim's internal signal handlers (SIGSYS for seccomp) coexist with application signal handlers without conflicts.

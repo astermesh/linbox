@@ -3,6 +3,12 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [LD_PRELOAD interception — random functions](../../rnd/boxing/ld-preload.md)
+- [LinBox architecture — randomness section](../../rnd/boxing/linux-sandbox.md)
+- [ADR-003: ChaCha20 PRNG](../../docs/adr/003-chacha20-prng.md)
+
 ## Business Result
 
 A process produces deterministic random output given the same seed. Two runs with identical seed yield byte-for-byte identical random data.
