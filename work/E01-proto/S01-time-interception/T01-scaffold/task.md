@@ -25,14 +25,21 @@ Before starting, read these docs to understand the overall architecture:
 - `.gitignore` — add C build artifacts (`build/`, `*.o`, `*.so`, `*.a`, `*.d`)
 - `scripts/setup-linux.sh` — installs all required packages on Ubuntu/Debian (idempotent)
 - Empty `liblinbox.so` that compiles and loads without errors
+- Test infrastructure (see [testing strategy](../../../rnd/testing/strategy.md)):
+  - Criterion test framework via CMake FetchContent
+  - CMake helper functions: `linbox_add_unit_test(NAME SOURCE)` for `*.test.c` (Criterion, no LD_PRELOAD), `linbox_add_preload_test(NAME SOURCE)` for `*.preload.c` (standalone binary, CTest runs with `LD_PRELOAD=$<TARGET_FILE:linbox>`)
+  - File naming convention: `foo.test.c` = unit test (logic only), `foo.preload.c` = integration test (real LD_PRELOAD interception)
+  - `make test` runs all unit + preload tests via CTest
 
 ## Tests
 
 - `make build` succeeds, produces `build/liblinbox.so`
-- `make test` runs (empty test suite, exit 0)
+- `make test` runs CTest (empty test suite, exit 0)
 - `LD_PRELOAD=./build/liblinbox.so /bin/true` exits 0 (shim loads without crashing)
 - `make fmt` runs clang-format without errors
 - `make clean` removes build directory
+- Criterion is fetched and builds successfully
+- A trivial `src/shim/linbox.test.c` (single `cr_assert(1)` test) compiles and passes via `make test`
 
 ---
 

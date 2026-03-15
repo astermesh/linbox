@@ -152,6 +152,59 @@ Kernel-level monitoring and packet inspection.
 | `syscall-monitor.c` | Userspace loader and metric reader | S16 |
 | `tc-inspect.c` | TC program for packet inspection | S14 |
 
+## Tests
+
+Full testing strategy: [rnd/testing/strategy.md](../rnd/testing/strategy.md)
+
+Three layers of tests, each catching different kinds of bugs:
+
+```
+Layer 1: Unit tests (*.test.c)
+  Framework: Criterion
+  LD_PRELOAD: No
+  What: Pure logic — SBP parsing, PRNG output, time calculations, timer queue
+  Speed: Milliseconds
+  Example: "does sbp_parse correctly decode a SET_TIME message?"
+
+Layer 2: LD_PRELOAD integration tests (*.preload.c)
+  Framework: Plain C + CTest
+  LD_PRELOAD: Yes (CTest injects it via ENVIRONMENT property)
+  What: Real interception — does clock_gettime return fake time?
+  Speed: Milliseconds
+  Example: "with liblinbox.so loaded, does clock_gettime(CLOCK_REALTIME) return 2025-01-01?"
+
+Layer 3: E2E tests (tests/e2e/*.sh)
+  Framework: Shell scripts + Docker
+  LD_PRELOAD: Via Docker container
+  What: Real services under control
+  Speed: Seconds-minutes
+  Example: "PostgreSQL SELECT now() returns time set by controller"
+```
+
+**Why two types of C tests?** The shim is loaded into a process at startup via `LD_PRELOAD`. If you load it into the Criterion test runner, it will intercept the framework's own calls (time, signals, etc.) and break things. So:
+- `*.test.c` — test runner and shim are separate. Tests logic without loading the shim.
+- `*.preload.c` — standalone binaries that CTest runs WITH `LD_PRELOAD=liblinbox.so`. Tests the real interception.
+
+**File placement** (co-located per AGENTS.md):
+```
+src/shim/
+  time.c                      # production code
+  time.test.c                 # unit test (Criterion)
+  time.preload.c              # integration test (standalone, WITH LD_PRELOAD)
+src/common/
+  sbp.c
+  sbp.test.c
+  shm.c
+  shm.test.c
+  shm.preload.c               # cross-process shared memory test
+src/controller/
+  main.c
+  server.test.c               # test socket server with real unix socket
+tests/e2e/
+  pg-time.sh
+  pg-random.sh
+```
+
 ### Everything else
 
 ```
