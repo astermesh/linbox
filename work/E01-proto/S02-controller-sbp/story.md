@@ -3,6 +3,13 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [Project structure](../../docs/project-structure.md)
+- [LD_PRELOAD interception — transport section](../../rnd/boxing/ld-preload.md)
+- [ADR-002: Shared memory seqlock](../../docs/adr/002-shm-seqlock-time.md)
+- [ADR-006: SBP protocol](../../docs/adr/006-sbp-protocol.md)
+
 ## Business Result
 
 Time is controlled from outside. A controller process sets "it is now 2025-01-01", and the sandboxed process sees that time. Time can be changed dynamically.

@@ -3,6 +3,13 @@
 **Epic:** Proto
 **Status:** Backlog
 
+## Required Reading
+
+- [Project structure](../../docs/project-structure.md)
+- [LinBox architecture — layered stack](../../rnd/boxing/linux-sandbox.md)
+- [ADR-012: Docker runtime](../../docs/adr/012-docker-runtime.md)
+- [Development environment](../../docs/env.md)
+
 ## Business Result
 
 PostgreSQL in Docker returns `SELECT now()` = controlled time, `SELECT uuid_generate_v4()` is deterministic. The full stack works end-to-end.
