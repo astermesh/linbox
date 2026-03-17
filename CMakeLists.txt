@@ -36,6 +36,7 @@ set(LINBOX_CRITERION_INCLUDE_DIR "${criterion_SOURCE_DIR}/include")
 
 add_library(linbox SHARED
   src/shim/linbox.c
+  src/shim/time.c
 )
 
 set_target_properties(linbox PROPERTIES
