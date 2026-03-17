@@ -26,41 +26,26 @@ static real_clock_fn g_real_clock = NULL;
 static real_times_fn g_real_times = NULL;
 static real_timespec_get_fn g_real_timespec_get = NULL;
 
-static int real_monotonic_now(struct timespec *tp) {
+static int linbox_fallback_now(struct timespec *tp) {
     if (g_real_clock_gettime) {
-        return g_real_clock_gettime(CLOCK_MONOTONIC, tp);
+        return g_real_clock_gettime(CLOCK_REALTIME, tp);
     }
-    return (int)syscall(SYS_clock_gettime, CLOCK_MONOTONIC, tp);
-}
-
-static int64_t to_ns(const struct timespec *ts) {
-    return ((int64_t)ts->tv_sec * 1000000000LL) + ts->tv_nsec;
-}
-
-static struct timespec from_ns(int64_t ns) {
-    struct timespec out;
-    out.tv_sec = (time_t)(ns / 1000000000LL);
-    out.tv_nsec = (long)(ns % 1000000000LL);
-    if (out.tv_nsec < 0) {
-        out.tv_nsec += 1000000000L;
-        out.tv_sec -= 1;
-    }
-    return out;
+    return (int)syscall(SYS_clock_gettime, CLOCK_REALTIME, tp);
 }
 
 static int linbox_virtual_now(struct timespec *tp) {
     linbox_init_state();
 
-    struct timespec now_mono;
-    if (real_monotonic_now(&now_mono) != 0) {
-        return -1;
+    linbox_state_t *st = linbox_state();
+
+    if (st->controller_connected && st->shm.layout) {
+        if (linbox_shm_read_time(st->shm.layout, tp) == 0) {
+            return 0;
+        }
+        st->controller_connected = false;
     }
 
-    linbox_state_t *st = linbox_state();
-    int64_t elapsed = to_ns(&now_mono) - to_ns(&st->real_start_mono);
-    int64_t virtual_ns = to_ns(&st->fake_base) + elapsed;
-    *tp = from_ns(virtual_ns);
-    return 0;
+    return linbox_fallback_now(tp);
 }
 
 int linbox_virtual_clock_gettime(clockid_t clk_id, struct timespec *tp) {
@@ -107,6 +92,7 @@ int linbox_real_clock_gettime_available(void) {
 }
 
 int clock_gettime(clockid_t clk_id, struct timespec *tp) {
+    LINBOX_RESOLVE_NEXT(g_real_clock_gettime, "clock_gettime", real_clock_gettime_fn);
     return linbox_virtual_clock_gettime(clk_id, tp);
 }
 
@@ -171,9 +157,6 @@ clock_t times(struct tms *buf) {
     if (buf) {
         memset(buf, 0, sizeof(*buf));
         buf->tms_utime = ticks;
-        buf->tms_stime = 0;
-        buf->tms_cutime = 0;
-        buf->tms_cstime = 0;
     }
 
     return ticks;
