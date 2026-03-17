@@ -56,6 +56,15 @@ target_compile_definitions(linbox PRIVATE _GNU_SOURCE)
 target_include_directories(linbox PUBLIC src)
 target_link_libraries(linbox PRIVATE dl linbox-common)
 
+add_executable(linbox-controller
+  src/controller/main.c
+  src/controller/time-manager.c
+)
+
+target_compile_definitions(linbox-controller PRIVATE _GNU_SOURCE)
+target_include_directories(linbox-controller PRIVATE src)
+target_link_libraries(linbox-controller PRIVATE linbox-common)
+
 linbox_add_unit_test(NAME linbox_shim_unit SOURCE src/shim/linbox.test.c LIBRARIES linbox)
 linbox_add_preload_test(NAME linbox_shim_preload SOURCE src/shim/linbox.preload.c)
 linbox_add_unit_test(NAME linbox_common_sbp_unit SOURCE src/common/sbp.test.c LIBRARIES linbox-common)
