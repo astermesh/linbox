@@ -21,7 +21,8 @@ static int run_and_read(const char *cmd, char *buf, size_t n) {
 
 int main(void) {
     char with_preload[128] = {0};
-    if (run_and_read("date -u '+%a %b %e %T %Z %Y'", with_preload, sizeof(with_preload)) != 0) {
+    if (run_and_read("LC_ALL=C TZ=UTC date '+%a %b %e %T %Z %Y'", with_preload,
+                     sizeof(with_preload)) != 0) {
         return 1;
     }
 
@@ -32,8 +33,8 @@ int main(void) {
     unsetenv("LD_PRELOAD");
 
     char without_preload[128] = {0};
-    if (run_and_read("date -u '+%a %b %e %T %Z %Y'", without_preload, sizeof(without_preload)) !=
-        0) {
+    if (run_and_read("LC_ALL=C TZ=UTC date '+%a %b %e %T %Z %Y'", without_preload,
+                     sizeof(without_preload)) != 0) {
         return 3;
     }
 

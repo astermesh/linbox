@@ -34,6 +34,15 @@ set(CRITERION_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(criterion)
 set(LINBOX_CRITERION_INCLUDE_DIR "${criterion_SOURCE_DIR}/include")
 
+add_library(linbox-common STATIC
+  src/common/sbp.c
+  src/common/shm.c
+)
+
+target_compile_definitions(linbox-common PRIVATE _GNU_SOURCE)
+target_include_directories(linbox-common PUBLIC src)
+target_link_libraries(linbox-common PRIVATE rt)
+
 add_library(linbox SHARED
   src/shim/linbox.c
   src/shim/time.c
@@ -45,7 +54,9 @@ set_target_properties(linbox PROPERTIES
 
 target_compile_definitions(linbox PRIVATE _GNU_SOURCE)
 target_include_directories(linbox PUBLIC src)
-target_link_libraries(linbox PRIVATE dl)
+target_link_libraries(linbox PRIVATE dl linbox-common)
 
-linbox_add_unit_test(NAME linbox_shim_unit SOURCE src/shim/linbox.test.c)
+linbox_add_unit_test(NAME linbox_shim_unit SOURCE src/shim/linbox.test.c LIBRARIES linbox)
 linbox_add_preload_test(NAME linbox_shim_preload SOURCE src/shim/linbox.preload.c)
+linbox_add_unit_test(NAME linbox_common_sbp_unit SOURCE src/common/sbp.test.c LIBRARIES linbox-common)
+linbox_add_unit_test(NAME linbox_common_shm_unit SOURCE src/common/shm.test.c LIBRARIES linbox-common pthread)
