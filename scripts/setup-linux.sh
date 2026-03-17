@@ -23,6 +23,7 @@ PACKAGES=(
     build-essential
     cmake
     pkg-config
+    libcriterion-dev
     libseccomp-dev
     linux-libc-dev
     libcap-dev
