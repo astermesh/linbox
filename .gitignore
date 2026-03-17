@@ -16,3 +16,10 @@ __screenshots__/
 .env.test
 .env.local
 .env.*.local
+
+# C/C++ build artifacts
+build/
+*.o
+*.so
+*.a
+*.d
