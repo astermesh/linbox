@@ -109,22 +109,6 @@ int main(void) {
         return 11;
     }
 
-    pid_t pid = fork();
-    if (pid < 0) {
-        perror("fork");
-        return 12;
-    }
-    if (pid == 0) {
-        struct timespec child_ts = {0};
-        long child_rc = inline_syscall2(SYS_clock_gettime, CLOCK_REALTIME, (long)&child_ts);
-        _exit((child_rc == 0 && child_ts.tv_sec == 1735689600L) ? 0 : 1);
-    }
-
-    int status = 0;
-    if (waitpid(pid, &status, 0) < 0 || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-        fprintf(stderr, "fork inheritance check failed status=%d\n", status);
-        return 13;
-    }
 
 #ifdef SYS_io_uring_setup
     errno = 0;

@@ -25,13 +25,15 @@ typedef struct linbox_state {
     struct timespec fake_base;
     struct timespec real_start_mono;
     struct timespec resolution;
-    uint64_t cached_seed;
+    uint64_t shared_seed;
+    uint64_t effective_seed;
     linbox_prng_t prng;
     linbox_shm_handle_t shm;
 } linbox_state_t;
 
 linbox_state_t *linbox_state(void);
 void linbox_init_state(void);
+void linbox_reinit_state(void);
 
 /* Testing helpers */
 int linbox_virtual_clock_gettime(clockid_t clk_id, struct timespec *tp);

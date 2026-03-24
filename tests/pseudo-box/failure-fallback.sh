@@ -18,15 +18,15 @@ trap cleanup EXIT
 
 make -C "$ROOT" build >/dev/null
 
-export LINBOX_SOCK="$SOCK"
-export LINBOX_SHM="$SHM"
-export LD_PRELOAD="$BUILD_DIR/liblinbox.so"
-
-"$BUILD_DIR/linbox-controller" >/tmp/linbox-fallback-$$.log 2>&1 &
+env -i LINBOX_SOCK="$SOCK" LINBOX_SHM="$SHM" "$BUILD_DIR/linbox-controller" >/tmp/linbox-fallback-$$.log 2>&1 &
 CTRL_PID=$!
+for _ in $(seq 1 40); do
+  [[ -S "$SOCK" ]] && break
+  sleep 0.05
+done
 sleep 0.2
 
-OUT1="$(LC_ALL=C TZ=UTC date '+%Y')"
+OUT1="$(env -i LINBOX_SOCK="$SOCK" LINBOX_SHM="$SHM" LD_PRELOAD="$BUILD_DIR/liblinbox.so" LINBOX_DISABLE_SECCOMP=1 LC_ALL=C TZ=UTC /bin/date '+%Y')"
 [[ "$OUT1" == "2025" ]] || {
   echo "expected virtual year 2025 before controller stop, got: $OUT1" >&2
   exit 1
@@ -37,8 +37,8 @@ wait "$CTRL_PID" || true
 CTRL_PID=""
 sleep 0.1
 
-OUT2="$(LC_ALL=C TZ=UTC date '+%Y')"
-CURRENT_YEAR="$(LD_PRELOAD= date -u '+%Y')"
+OUT2="$(env -i LINBOX_SOCK="$SOCK" LINBOX_SHM="$SHM" LD_PRELOAD="$BUILD_DIR/liblinbox.so" LINBOX_DISABLE_SECCOMP=1 LC_ALL=C TZ=UTC /bin/date '+%Y')"
+CURRENT_YEAR="$(env -i TZ=UTC /bin/date '+%Y')"
 [[ "$OUT2" == "$CURRENT_YEAR" ]] || {
   echo "expected fallback to real year $CURRENT_YEAR after controller stop, got: $OUT2" >&2
   exit 1

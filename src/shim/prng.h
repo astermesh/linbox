@@ -9,6 +9,7 @@ typedef struct linbox_prng {
 } linbox_prng_t;
 
 void linbox_prng_seed(linbox_prng_t *prng, uint64_t seed);
+uint64_t linbox_prng_derive_process_seed(uint64_t seed, uint32_t pid);
 uint64_t linbox_prng_next_u64(linbox_prng_t *prng);
 uint32_t linbox_prng_next_u32(linbox_prng_t *prng);
 void linbox_prng_fill(linbox_prng_t *prng, void *buf, size_t len);
