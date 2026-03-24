@@ -26,6 +26,9 @@ Full deterministic random interception. Seeded PRNG replaces all sources of rand
 
 ## Verification
 
+Note: current implementation covers deterministic libc/kernel random sources exercised by the test suite, but does not yet implement `getauxval(AT_RANDOM)` overwrite or CPUID masking for `RDRAND`/`RDSEED`. Those remaining deliverables must be completed before this task can be marked Done.
+
+
 - Unit tests: PRNG logic, seed handling, deterministic byte generation
 - Preload tests: `getrandom`, `getentropy`, `arc4random*`, `rand/random`, `/dev/urandom` and `/dev/random` interception in standalone binaries under `LD_PRELOAD`
 - Pseudo-box tests: repeatability scenarios with same seed and changed seed across repeated controller-managed runs
