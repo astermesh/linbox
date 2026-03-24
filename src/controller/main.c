@@ -62,6 +62,49 @@ static int send_ack(int fd, uint16_t flags) {
     return (write(fd, frame, out_len) == (ssize_t)out_len) ? 0 : -1;
 }
 
+static void register_process(linbox_time_manager_t *tm, uint32_t pid) {
+    if (!tm || !tm->shm.layout || pid == 0) {
+        return;
+    }
+
+    linbox_process_slot_t *empty = NULL;
+    for (size_t i = 0; i < LINBOX_PROCESS_SLOT_COUNT; i++) {
+        linbox_process_slot_t *slot = &tm->shm.layout->process_slots[i];
+        if (slot->pid == pid) {
+            slot->heartbeat_ns = atomic_load_explicit(&tm->shm.layout->header.heartbeat_ns,
+                                                      memory_order_relaxed);
+            return;
+        }
+        if (!empty && slot->pid == 0) {
+            empty = slot;
+        }
+    }
+
+    if (empty) {
+        empty->pid = pid;
+        empty->flags = 0;
+        empty->heartbeat_ns = atomic_load_explicit(&tm->shm.layout->header.heartbeat_ns,
+                                                   memory_order_relaxed);
+    }
+}
+
+static void reap_dead_processes(linbox_time_manager_t *tm) {
+    if (!tm || !tm->shm.layout) {
+        return;
+    }
+
+    for (size_t i = 0; i < LINBOX_PROCESS_SLOT_COUNT; i++) {
+        linbox_process_slot_t *slot = &tm->shm.layout->process_slots[i];
+        if (slot->pid == 0) {
+            continue;
+        }
+        if (kill((pid_t)slot->pid, 0) == 0 || errno == EPERM) {
+            continue;
+        }
+        memset(slot, 0, sizeof(*slot));
+    }
+}
+
 static int handle_client_message(int fd, linbox_time_manager_t *tm) {
     uint8_t frame[SBP_MAX_FRAME_SIZE];
     ssize_t n = read(fd, frame, sizeof(frame));
@@ -90,6 +133,7 @@ static int handle_client_message(int fd, linbox_time_manager_t *tm) {
         linbox_time_manager_set_seed(tm, msg.payload.set_seed.seed);
         return send_ack(fd, msg.flags);
     case SBP_MSG_REGISTER_PROCESS:
+        register_process(tm, msg.payload.register_process.pid);
         return send_ack(fd, msg.flags);
     case SBP_MSG_ACK:
     default:
@@ -129,20 +173,19 @@ int main(void) {
 
     fprintf(stderr, "linbox-controller: listening on %s, shm=%s\n", sock_path, shm_path);
 
-    int client_fd = -1;
+    int client_fds[LINBOX_PROCESS_SLOT_COUNT] = {0};
+    size_t client_count = 0;
     struct timespec last_tick;
     clock_gettime(CLOCK_MONOTONIC, &last_tick);
 
     while (!g_stop) {
-        struct pollfd pfds[2];
-        int nfds = 0;
+        struct pollfd pfds[1 + LINBOX_PROCESS_SLOT_COUNT];
+        pfds[0].fd = listen_fd;
+        pfds[0].events = POLLIN;
+        int nfds = 1;
 
-        pfds[nfds].fd = listen_fd;
-        pfds[nfds].events = POLLIN;
-        nfds++;
-
-        if (client_fd >= 0) {
-            pfds[nfds].fd = client_fd;
+        for (size_t i = 0; i < client_count; i++) {
+            pfds[nfds].fd = client_fds[i];
             pfds[nfds].events = POLLIN | POLLHUP | POLLERR;
             nfds++;
         }
@@ -157,24 +200,28 @@ int main(void) {
 
         if (pfds[0].revents & POLLIN) {
             int fd = accept(listen_fd, NULL, NULL);
-            if (fd >= 0) {
-                if (client_fd >= 0) {
-                    close(client_fd);
-                }
-                client_fd = fd;
+            if (fd >= 0 && client_count < LINBOX_PROCESS_SLOT_COUNT) {
+                client_fds[client_count++] = fd;
+            } else if (fd >= 0) {
+                close(fd);
             }
         }
 
-        if (client_fd >= 0 && nfds > 1) {
-            if (pfds[1].revents & (POLLERR | POLLHUP)) {
-                close(client_fd);
-                client_fd = -1;
-            } else if (pfds[1].revents & POLLIN) {
-                if (handle_client_message(client_fd, &tm) != 0) {
-                    close(client_fd);
-                    client_fd = -1;
-                }
+        for (size_t i = 0; i < client_count;) {
+            short revents = pfds[i + 1].revents;
+            if (revents & (POLLERR | POLLHUP)) {
+                close(client_fds[i]);
+                client_fds[i] = client_fds[client_count - 1];
+                client_count--;
+                continue;
             }
+            if ((revents & POLLIN) && handle_client_message(client_fds[i], &tm) != 0) {
+                close(client_fds[i]);
+                client_fds[i] = client_fds[client_count - 1];
+                client_count--;
+                continue;
+            }
+            i++;
         }
 
         struct timespec now;
@@ -183,12 +230,13 @@ int main(void) {
                            (now.tv_nsec - last_tick.tv_nsec);
         if (delta_ns > 0) {
             linbox_time_manager_tick(&tm, delta_ns);
+            reap_dead_processes(&tm);
             last_tick = now;
         }
     }
 
-    if (client_fd >= 0) {
-        close(client_fd);
+    for (size_t i = 0; i < client_count; i++) {
+        close(client_fds[i]);
     }
     close(listen_fd);
     unlink(sock_path);

@@ -48,6 +48,7 @@ add_library(linbox SHARED
   src/shim/time.c
   src/shim/prng.c
   src/shim/random.c
+  src/shim/process.c
   src/shim/seccomp.c
   src/shim/sigsys.c
   src/shim/syscall-raw.c
@@ -78,5 +79,6 @@ linbox_add_unit_test(NAME linbox_shim_unit SOURCE src/shim/linbox.test.c LIBRARI
 linbox_add_unit_test(NAME linbox_shim_prng_unit SOURCE src/shim/prng.test.c LIBRARIES linbox)
 linbox_add_preload_test(NAME linbox_shim_preload SOURCE src/shim/linbox.preload.c)
 linbox_add_preload_test(NAME linbox_shim_random_preload SOURCE src/shim/random.preload.c)
+linbox_add_preload_test(NAME linbox_shim_process_preload SOURCE src/shim/process.preload.c LIBRARIES linbox-common)
 linbox_add_unit_test(NAME linbox_common_sbp_unit SOURCE src/common/sbp.test.c LIBRARIES linbox-common)
 linbox_add_unit_test(NAME linbox_common_shm_unit SOURCE src/common/shm.test.c LIBRARIES linbox-common pthread)

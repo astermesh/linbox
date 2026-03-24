@@ -18,14 +18,14 @@ run_once() {
     rm -f "$sock"
   }
 
-  export LINBOX_SOCK="$sock"
-  export LINBOX_SHM="$shm"
-  export LD_PRELOAD="$BUILD_DIR/liblinbox.so"
-
-  "$BUILD_DIR/linbox-controller" >/tmp/linbox-repeat-$$.log 2>&1 &
+  env -i LINBOX_SOCK="$sock" LINBOX_SHM="$shm" "$BUILD_DIR/linbox-controller" >/tmp/linbox-repeat-$$.log 2>&1 &
   ctrl_pid=$!
+  for _ in $(seq 1 40); do
+    [[ -S "$sock" ]] && break
+    sleep 0.05
+  done
   sleep 0.2
-  out="$(LC_ALL=C TZ=UTC date '+%Y-%m-%d %H:%M:%S')"
+  out="$(env -i LINBOX_SOCK="$sock" LINBOX_SHM="$shm" LD_PRELOAD="$BUILD_DIR/liblinbox.so" LINBOX_DISABLE_SECCOMP=1 LC_ALL=C TZ=UTC /bin/date '+%Y-%m-%d %H:%M:%S')"
   cleanup_inner
   printf '%s\n' "$out"
 }

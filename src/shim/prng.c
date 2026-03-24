@@ -22,6 +22,11 @@ void linbox_prng_seed(linbox_prng_t *prng, uint64_t seed) {
     }
 }
 
+uint64_t linbox_prng_derive_process_seed(uint64_t seed, uint32_t pid) {
+    uint64_t mixed = seed ^ (((uint64_t)pid << 32) | (uint64_t)pid);
+    return splitmix64(&mixed);
+}
+
 uint64_t linbox_prng_next_u64(linbox_prng_t *prng) {
     uint64_t x = prng->state;
     x ^= x >> 12;

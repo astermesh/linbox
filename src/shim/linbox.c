@@ -25,27 +25,37 @@ static linbox_state_t g_linbox_state = {
     .fake_base = {.tv_sec = LINBOX_FAKE_EPOCH_SEC, .tv_nsec = 0},
     .real_start_mono = {.tv_sec = 0, .tv_nsec = 0},
     .resolution = {.tv_sec = 0, .tv_nsec = 1000}, /* 1 microsecond */
-    .cached_seed = 0,
+    .shared_seed = 0,
+    .effective_seed = 0,
     .prng = {.state = 0},
     .shm = {.fd = -1, .size = 0, .layout = NULL},
 };
 
 linbox_state_t *linbox_state(void) { return &g_linbox_state; }
 
+static uint64_t linbox_effective_seed_for_pid(uint64_t seed) {
+    return linbox_prng_derive_process_seed(seed, (uint32_t)getpid());
+}
+
 uint64_t linbox_prng_seed_value(void) {
     linbox_init_state();
     linbox_state_t *st = linbox_state();
 
     if (st->controller_connected && st->shm.layout) {
-        st->cached_seed = atomic_load_explicit(&st->shm.layout->prng_seed, memory_order_acquire);
+        uint64_t shared =
+            atomic_load_explicit(&st->shm.layout->prng_seed, memory_order_acquire);
+        if (shared != st->shared_seed) {
+            st->shared_seed = shared;
+            st->effective_seed = linbox_effective_seed_for_pid(shared);
+        }
     }
 
-    return st->cached_seed;
+    return st->effective_seed;
 }
 
 void linbox_random_reseed(uint64_t seed) {
     linbox_state_t *st = linbox_state();
-    st->cached_seed = seed;
+    st->effective_seed = seed;
     linbox_prng_seed(&st->prng, seed);
 }
 
@@ -54,7 +64,7 @@ ssize_t linbox_random_fill(void *buf, size_t len) {
     linbox_state_t *st = linbox_state();
     uint64_t seed = linbox_prng_seed_value();
 
-    if (st->prng.state == 0 || st->cached_seed != seed) {
+    if (st->prng.state == 0 || st->effective_seed != seed) {
         linbox_random_reseed(seed);
     }
 
@@ -73,7 +83,7 @@ uint32_t linbox_random_uniform(uint32_t upper_bound) {
     linbox_state_t *st = linbox_state();
     uint64_t seed = linbox_prng_seed_value();
 
-    if (st->prng.state == 0 || st->cached_seed != seed) {
+    if (st->prng.state == 0 || st->effective_seed != seed) {
         linbox_random_reseed(seed);
     }
 
@@ -159,13 +169,36 @@ void linbox_init_state(void) {
         g_linbox_state.controller_connected = false;
     }
 
-    g_linbox_state.cached_seed =
+    g_linbox_state.shared_seed =
         g_linbox_state.controller_connected && g_linbox_state.shm.layout
             ? atomic_load_explicit(&g_linbox_state.shm.layout->prng_seed, memory_order_acquire)
             : 0;
-    linbox_prng_seed(&g_linbox_state.prng, g_linbox_state.cached_seed);
+    g_linbox_state.effective_seed = linbox_effective_seed_for_pid(g_linbox_state.shared_seed);
+    linbox_prng_seed(&g_linbox_state.prng, g_linbox_state.effective_seed);
 
     g_linbox_state.initialized = true;
+}
+
+void linbox_reinit_state(void) {
+    linbox_state_t *st = linbox_state();
+
+    if (st->controller_fd >= 0) {
+        close(st->controller_fd);
+        st->controller_fd = -1;
+    }
+    st->controller_connected = false;
+    st->initialized = false;
+    st->prng.state = 0;
+    st->effective_seed = 0;
+
+    if (st->shm.fd >= 0) {
+        linbox_shm_detach(&st->shm);
+    }
+    st->shm.fd = -1;
+    st->shm.layout = NULL;
+    st->shm.size = 0;
+
+    linbox_init_state();
 }
 
 __attribute__((visibility("default"))) void linbox_noop(void) {

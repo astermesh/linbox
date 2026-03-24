@@ -18,7 +18,7 @@ export LINBOX_SOCK="$SOCK"
 export LINBOX_SHM="$SHM"
 export LD_PRELOAD="${BUILD_DIR}/liblinbox.so"
 
-"${BUILD_DIR}/linbox-controller" &
+env LD_PRELOAD= "${BUILD_DIR}/linbox-controller" &
 CTRL_PID=$!
 sleep 0.2
 

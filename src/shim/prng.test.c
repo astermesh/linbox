@@ -41,3 +41,12 @@ Test(prng, uniform_within_range) {
         cr_assert_lt(v, 100u);
     }
 }
+
+Test(prng, derive_process_seed_changes_with_pid) {
+    uint64_t parent = linbox_prng_derive_process_seed(555, 100);
+    uint64_t child = linbox_prng_derive_process_seed(555, 101);
+    uint64_t same = linbox_prng_derive_process_seed(555, 100);
+
+    cr_assert_eq(parent, same);
+    cr_assert_neq(parent, child);
+}
