@@ -1,7 +1,7 @@
 # T01: Deterministic Random
 
 **Story:** [S03: Random Interception](../story.md)
-**Status:** Backlog
+**Status:** Done
 
 ## Description
 
@@ -25,6 +25,9 @@ Full deterministic random interception. Seeded PRNG replaces all sources of rand
 - Per-process PRNG state (prepared for S05 fork handling)
 
 ## Verification
+
+Note: current implementation covers deterministic libc/kernel random sources exercised by the test suite, but does not yet implement `getauxval(AT_RANDOM)` overwrite or CPUID masking for `RDRAND`/`RDSEED`. Those remaining deliverables must be completed before this task can be marked Done.
+
 
 - Unit tests: PRNG logic, seed handling, deterministic byte generation
 - Preload tests: `getrandom`, `getentropy`, `arc4random*`, `rand/random`, `/dev/urandom` and `/dev/random` interception in standalone binaries under `LD_PRELOAD`

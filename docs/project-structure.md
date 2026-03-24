@@ -222,6 +222,7 @@ scripts/
   snapshot.sh                 # create/restore snapshots
 
 tests/e2e/
+  docker-smoke.sh             # static + compose-config validation for Docker assets
   pg-time.sh                  # SELECT now() = virtual time
   pg-random.sh                # deterministic uuid_generate_v4()
   pg-determinism.sh           # two runs = identical results

@@ -1,7 +1,7 @@
 # T01: seccomp-bpf + SIGSYS Handler
 
 **Story:** [S04: Seccomp Safety Net](../story.md)
-**Status:** Backlog
+**Status:** Done
 
 ## Description
 

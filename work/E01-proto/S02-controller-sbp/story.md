@@ -1,7 +1,7 @@
 # S02: Controller + SBP Protocol
 
 **Epic:** Proto
-**Status:** Backlog
+**Status:** Done
 
 ## Required Reading
 

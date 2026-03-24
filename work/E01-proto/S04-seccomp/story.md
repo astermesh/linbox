@@ -1,7 +1,7 @@
 # S04: Seccomp Safety Net
 
 **Epic:** Proto
-**Status:** Backlog
+**Status:** Done
 
 ## Required Reading
 
