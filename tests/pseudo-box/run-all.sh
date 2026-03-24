@@ -7,6 +7,7 @@ TESTS=(
   "$ROOT/tests/pseudo-box/time-lifecycle.sh"
   "$ROOT/tests/pseudo-box/failure-fallback.sh"
   "$ROOT/tests/pseudo-box/repeatability.sh"
+  "$ROOT/tests/pseudo-box/random-repeatability.sh"
 )
 
 for test_script in "${TESTS[@]}"; do

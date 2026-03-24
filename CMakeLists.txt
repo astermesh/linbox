@@ -46,6 +46,8 @@ target_link_libraries(linbox-common PRIVATE rt)
 add_library(linbox SHARED
   src/shim/linbox.c
   src/shim/time.c
+  src/shim/prng.c
+  src/shim/random.c
 )
 
 set_target_properties(linbox PROPERTIES
@@ -66,6 +68,8 @@ target_include_directories(linbox-controller PRIVATE src)
 target_link_libraries(linbox-controller PRIVATE linbox-common)
 
 linbox_add_unit_test(NAME linbox_shim_unit SOURCE src/shim/linbox.test.c LIBRARIES linbox)
+linbox_add_unit_test(NAME linbox_shim_prng_unit SOURCE src/shim/prng.test.c LIBRARIES linbox)
 linbox_add_preload_test(NAME linbox_shim_preload SOURCE src/shim/linbox.preload.c)
+linbox_add_preload_test(NAME linbox_shim_random_preload SOURCE src/shim/random.preload.c)
 linbox_add_unit_test(NAME linbox_common_sbp_unit SOURCE src/common/sbp.test.c LIBRARIES linbox-common)
 linbox_add_unit_test(NAME linbox_common_shm_unit SOURCE src/common/shm.test.c LIBRARIES linbox-common pthread)
