@@ -33,8 +33,7 @@ static linbox_virtual_fd_t g_virtual_fds[16];
 static int g_rand_seeded = 0;
 
 static int linbox_is_random_path(const char *path) {
-    return path &&
-           ((strcmp(path, "/dev/urandom") == 0) || (strcmp(path, "/dev/random") == 0));
+    return path && ((strcmp(path, "/dev/urandom") == 0) || (strcmp(path, "/dev/random") == 0));
 }
 
 static int linbox_allocate_virtual_fd(void) {
@@ -77,9 +76,13 @@ static void linbox_seed_rand_once(void) {
     }
 }
 
-ssize_t getrandom(void *buf, size_t buflen, unsigned int flags) {
+ssize_t linbox_virtual_getrandom(void *buf, size_t buflen, unsigned int flags) {
     (void)flags;
     return linbox_random_fill(buf, buflen);
+}
+
+ssize_t getrandom(void *buf, size_t buflen, unsigned int flags) {
+    return linbox_virtual_getrandom(buf, buflen, flags);
 }
 
 int getentropy(void *buf, size_t buflen) {
@@ -92,13 +95,9 @@ int getentropy(void *buf, size_t buflen) {
 
 uint32_t arc4random(void) { return linbox_random_u32(); }
 
-void arc4random_buf(void *buf, size_t nbytes) {
-    (void)linbox_random_fill(buf, nbytes);
-}
+void arc4random_buf(void *buf, size_t nbytes) { (void)linbox_random_fill(buf, nbytes); }
 
-uint32_t arc4random_uniform(uint32_t upper_bound) {
-    return linbox_random_uniform(upper_bound);
-}
+uint32_t arc4random_uniform(uint32_t upper_bound) { return linbox_random_uniform(upper_bound); }
 
 int rand(void) {
     linbox_seed_rand_once();
