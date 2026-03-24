@@ -30,7 +30,7 @@ pseudo-test: build
 	./tests/pseudo-box/run-all.sh
 
 e2e:
-	./tests/e2e/docker-smoke.sh
+	./tests/e2e/run-all.sh
 
 verify: test pseudo-test e2e
 
