@@ -5,7 +5,7 @@ CLANG_FORMAT ?= clang-format
 
 C_FORMAT_FILES := $(shell find src -type f \( -name '*.c' -o -name '*.h' \) 2>/dev/null)
 
-.PHONY: build debug release asan test clean fmt lint
+.PHONY: build debug release asan test pseudo-test verify clean fmt lint
 
 build:
 	$(CMAKE) -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Debug
@@ -25,6 +25,11 @@ asan:
 
 test: build
 	$(CTEST) --test-dir $(BUILD_DIR) --output-on-failure
+
+pseudo-test: build
+	./tests/pseudo-box/run-all.sh
+
+verify: test pseudo-test
 
 fmt:
 	@if [ -n "$(C_FORMAT_FILES)" ]; then \

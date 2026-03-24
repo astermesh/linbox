@@ -24,6 +24,14 @@ Full deterministic random interception. Seeded PRNG replaces all sources of rand
 - Seed from controller via shared memory (field in shm-layout)
 - Per-process PRNG state (prepared for S05 fork handling)
 
+## Verification
+
+- Unit tests: PRNG logic, seed handling, deterministic byte generation
+- Preload tests: `getrandom`, `getentropy`, `arc4random*`, `rand/random`, `/dev/urandom` and `/dev/random` interception in standalone binaries under `LD_PRELOAD`
+- Pseudo-box tests: repeatability scenarios with same seed and changed seed across repeated controller-managed runs
+- E2E tests: PostgreSQL deterministic UUID generation in containerized service (later, when S06 is active)
+- Manual checks: compare outputs from repeated runs with same seed and different seeds
+
 ## Tests
 
 - Two runs, same seed → `getrandom()` returns identical bytes
