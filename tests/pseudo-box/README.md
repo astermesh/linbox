@@ -7,6 +7,7 @@ Lightweight validation scenarios for LinBox that exercise a longer lifecycle tha
 - [Time lifecycle](time-lifecycle.sh) — controller + shim + real process + dynamic time update
 - [Failure fallback](failure-fallback.sh) — process behavior after controller shutdown
 - [Repeatability](repeatability.sh) — repeated runs should produce identical virtual time output
+- [Random repeatability](random-repeatability.sh) — repeated controller-managed runs should produce identical deterministic random output
 
 ## Purpose
 
