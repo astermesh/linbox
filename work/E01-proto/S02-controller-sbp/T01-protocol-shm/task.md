@@ -1,7 +1,7 @@
 # T01: SBP Protocol + Shared Memory
 
 **Story:** [S02: Controller + SBP Protocol](../story.md)
-**Status:** Backlog
+**Status:** Done
 
 ## Description
 

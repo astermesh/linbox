@@ -1,7 +1,7 @@
 # T01: Deterministic Random
 
 **Story:** [S03: Random Interception](../story.md)
-**Status:** Backlog
+**Status:** Done
 
 ## Description
 

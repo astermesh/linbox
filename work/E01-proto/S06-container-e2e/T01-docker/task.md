@@ -1,7 +1,7 @@
 # T01: Docker Integration
 
 **Story:** [S06: Container + E2E](../story.md)
-**Status:** Backlog
+**Status:** Done
 
 ## Description
 
@@ -24,6 +24,14 @@ Package everything into Docker containers. Controller and sandbox communicate vi
 - Shim connects to controller: "linbox: connected to controller"
 - `docker compose down` → clean shutdown, no orphan processes
 - Rebuild after code change → new .so is picked up
+
+## Verification
+
+- Unit tests: not applicable
+- Preload tests: covered indirectly by `make verify` because the shared library is rebuilt and preload suites still pass
+- Pseudo-box tests: `make verify`
+- E2E tests: `tests/e2e/docker-smoke.sh` (also via `make verify`)
+- Manual checks: `docker compose -f docker-compose.yml config` when Docker is available
 
 ---
 

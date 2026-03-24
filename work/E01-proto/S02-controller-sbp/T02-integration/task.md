@@ -1,7 +1,7 @@
 # T02: Controller + Shim Integration
 
 **Story:** [S02: Controller + SBP Protocol](../story.md)
-**Status:** Backlog
+**Status:** Done
 
 ## Description
 

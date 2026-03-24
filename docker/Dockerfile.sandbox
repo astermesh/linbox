@@ -1,0 +1,28 @@
+FROM debian:bookworm-slim AS builder
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential cmake \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+COPY . .
+RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build build --target linbox
+
+FROM debian:bookworm-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /src/build/liblinbox.so /usr/local/lib/liblinbox.so
+COPY scripts/run-sandbox.sh /usr/local/bin/run-sandbox.sh
+RUN chmod +x /usr/local/bin/run-sandbox.sh
+
+ENV LD_PRELOAD=/usr/local/lib/liblinbox.so
+ENV LINBOX_SOCK=/run/linbox/linbox.sock
+ENV LINBOX_SHM=/linbox-shm
+ENV LINBOX_DISABLE_SECCOMP=0
+
+ENTRYPOINT ["/usr/local/bin/run-sandbox.sh"]
+CMD ["/bin/sh", "-lc", "echo 'linbox sandbox ready'; exec sleep infinity"]

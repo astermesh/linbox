@@ -1,0 +1,35 @@
+services:
+  controller:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.controller
+    environment:
+      LINBOX_SOCK: /run/linbox/linbox.sock
+      LINBOX_SHM: /linbox-shm
+    volumes:
+      - linbox-run:/run/linbox
+
+  sandbox:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.sandbox
+    depends_on:
+      - controller
+    environment:
+      LD_PRELOAD: /usr/local/lib/liblinbox.so
+      LINBOX_SOCK: /run/linbox/linbox.sock
+      LINBOX_SHM: /linbox-shm
+      LINBOX_DISABLE_SECCOMP: 0
+    security_opt:
+      - seccomp=./docker/seccomp-profile.json
+    volumes:
+      - linbox-run:/run/linbox
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        echo "linbox sandbox boot";
+        exec sleep infinity
+
+volumes:
+  linbox-run:
