@@ -8,6 +8,7 @@ Lightweight validation scenarios for LinBox that exercise a longer lifecycle tha
 - [Failure fallback](failure-fallback.sh) — process behavior after controller shutdown
 - [Repeatability](repeatability.sh) — repeated runs should produce identical virtual time output
 - [Random repeatability](random-repeatability.sh) — repeated controller-managed runs should produce identical deterministic random output
+- [Seccomp direct syscalls](seccomp-direct-syscalls.sh) — direct syscall paths still receive virtual time/random behavior and io_uring is blocked
 
 ## Purpose
 

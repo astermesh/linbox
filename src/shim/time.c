@@ -9,6 +9,7 @@
 
 #include "linbox.h"
 #include "resolve.h"
+#include "syscall-raw.h"
 
 typedef int (*real_clock_gettime_fn)(clockid_t, struct timespec *);
 typedef int (*real_gettimeofday_fn)(struct timeval *, void *);
@@ -30,7 +31,7 @@ static int linbox_fallback_now(struct timespec *tp) {
     if (g_real_clock_gettime) {
         return g_real_clock_gettime(CLOCK_REALTIME, tp);
     }
-    return (int)syscall(SYS_clock_gettime, CLOCK_REALTIME, tp);
+    return linbox_syscall_result(linbox_raw_syscall2(SYS_clock_gettime, CLOCK_REALTIME, (long)tp));
 }
 
 static int linbox_virtual_now(struct timespec *tp) {
@@ -96,7 +97,7 @@ int clock_gettime(clockid_t clk_id, struct timespec *tp) {
     return linbox_virtual_clock_gettime(clk_id, tp);
 }
 
-int gettimeofday(struct timeval *tv, void *tz) {
+int linbox_virtual_gettimeofday(struct timeval *tv, void *tz) {
     (void)tz;
     if (!tv) {
         errno = EINVAL;
@@ -113,7 +114,7 @@ int gettimeofday(struct timeval *tv, void *tz) {
     return 0;
 }
 
-time_t time(time_t *tloc) {
+time_t linbox_virtual_time(time_t *tloc) {
     struct timespec ts;
     if (linbox_virtual_now(&ts) != 0) {
         return (time_t)-1;
@@ -124,6 +125,10 @@ time_t time(time_t *tloc) {
     }
     return ts.tv_sec;
 }
+
+int gettimeofday(struct timeval *tv, void *tz) { return linbox_virtual_gettimeofday(tv, tz); }
+
+time_t time(time_t *tloc) { return linbox_virtual_time(tloc); }
 
 int clock_getres(clockid_t clk_id, struct timespec *res) {
     return linbox_virtual_clock_getres(clk_id, res);

@@ -9,6 +9,7 @@
 
 #include "common/sbp.h"
 #include "linbox.h"
+#include "syscall-raw.h"
 
 #define LINBOX_DEFAULT_SOCK "/tmp/linbox.sock"
 #define LINBOX_DEFAULT_SHM "/linbox-shm"
@@ -18,6 +19,8 @@ static linbox_state_t g_linbox_state = {
     .resolving = false,
     .controller_connected = false,
     .warned_fallback = false,
+    .sigsys_installed = false,
+    .seccomp_installed = false,
     .controller_fd = -1,
     .fake_base = {.tv_sec = LINBOX_FAKE_EPOCH_SEC, .tv_nsec = 0},
     .real_start_mono = {.tv_sec = 0, .tv_nsec = 0},
@@ -131,7 +134,8 @@ void linbox_init_state(void) {
         return;
     }
 
-    (void)syscall(SYS_clock_gettime, CLOCK_MONOTONIC, &g_linbox_state.real_start_mono);
+    (void)linbox_raw_syscall2(SYS_clock_gettime, CLOCK_MONOTONIC,
+                              (long)&g_linbox_state.real_start_mono);
 
     const char *sock_path = getenv("LINBOX_SOCK");
     if (!sock_path || sock_path[0] == '\0') {
@@ -155,10 +159,10 @@ void linbox_init_state(void) {
         g_linbox_state.controller_connected = false;
     }
 
-    g_linbox_state.cached_seed = g_linbox_state.controller_connected && g_linbox_state.shm.layout
-                                      ? atomic_load_explicit(&g_linbox_state.shm.layout->prng_seed,
-                                                             memory_order_acquire)
-                                      : 0;
+    g_linbox_state.cached_seed =
+        g_linbox_state.controller_connected && g_linbox_state.shm.layout
+            ? atomic_load_explicit(&g_linbox_state.shm.layout->prng_seed, memory_order_acquire)
+            : 0;
     linbox_prng_seed(&g_linbox_state.prng, g_linbox_state.cached_seed);
 
     g_linbox_state.initialized = true;
@@ -168,8 +172,24 @@ __attribute__((visibility("default"))) void linbox_noop(void) {
     /* Intentionally empty scaffold symbol. */
 }
 
+static int linbox_seccomp_enabled(void) {
+    const char *disable = getenv("LINBOX_DISABLE_SECCOMP");
+    return !(disable && strcmp(disable, "0") != 0);
+}
+
 __attribute__((constructor)) static void linbox_ctor(void) {
     linbox_init_state();
+
+    if (linbox_seccomp_enabled()) {
+        if (linbox_install_sigsys_handler() != 0) {
+            (void)fprintf(stderr, "linbox: failed to install SIGSYS handler: %s\n",
+                          strerror(errno));
+        } else if (linbox_install_seccomp() != 0) {
+            (void)fprintf(stderr, "linbox: failed to install seccomp filter: %s\n",
+                          strerror(errno));
+        }
+    }
+
     (void)fprintf(stderr, "linbox: shim loaded (pid=%d)\n", getpid());
     if (!g_linbox_state.controller_connected) {
         (void)fprintf(stderr, "linbox: controller unavailable, fallback to real time\n");

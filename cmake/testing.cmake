@@ -13,7 +13,7 @@ function(linbox_add_unit_test)
     target_include_directories(${LINBOX_NAME} PRIVATE ${LINBOX_CRITERION_INCLUDE_DIR})
   endif()
   target_link_libraries(${LINBOX_NAME} PRIVATE criterion ${LINBOX_LIBRARIES})
-  add_test(NAME ${LINBOX_NAME} COMMAND ${LINBOX_NAME})
+  add_test(NAME ${LINBOX_NAME} COMMAND ${CMAKE_COMMAND} -E env LINBOX_DISABLE_SECCOMP=1 $<TARGET_FILE:${LINBOX_NAME}>)
 endfunction()
 
 function(linbox_add_preload_test)
@@ -32,6 +32,6 @@ function(linbox_add_preload_test)
   endif()
   add_test(
     NAME ${LINBOX_NAME}
-    COMMAND ${CMAKE_COMMAND} -E env LD_PRELOAD=$<TARGET_FILE:linbox> $<TARGET_FILE:${LINBOX_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E env LINBOX_DISABLE_SECCOMP=1 LD_PRELOAD=$<TARGET_FILE:linbox> $<TARGET_FILE:${LINBOX_NAME}>
   )
 endfunction()

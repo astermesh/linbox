@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
 
@@ -18,6 +19,8 @@ typedef struct linbox_state {
     bool resolving;
     bool controller_connected;
     bool warned_fallback;
+    bool sigsys_installed;
+    bool seccomp_installed;
     int controller_fd;
     struct timespec fake_base;
     struct timespec real_start_mono;
@@ -32,8 +35,13 @@ void linbox_init_state(void);
 
 /* Testing helpers */
 int linbox_virtual_clock_gettime(clockid_t clk_id, struct timespec *tp);
+int linbox_virtual_gettimeofday(struct timeval *tv, void *tz);
+time_t linbox_virtual_time(time_t *tloc);
+ssize_t linbox_virtual_getrandom(void *buf, size_t buflen, unsigned int flags);
 int linbox_virtual_clock_getres(clockid_t clk_id, struct timespec *res);
 int linbox_real_clock_gettime_available(void);
+int linbox_install_sigsys_handler(void);
+int linbox_install_seccomp(void);
 
 uint64_t linbox_prng_seed_value(void);
 void linbox_random_reseed(uint64_t seed);

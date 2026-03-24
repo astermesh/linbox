@@ -48,6 +48,10 @@ add_library(linbox SHARED
   src/shim/time.c
   src/shim/prng.c
   src/shim/random.c
+  src/shim/seccomp.c
+  src/shim/sigsys.c
+  src/shim/syscall-raw.c
+  src/shim/syscall-wrap.c
 )
 
 set_target_properties(linbox PROPERTIES
@@ -66,6 +70,9 @@ add_executable(linbox-controller
 target_compile_definitions(linbox-controller PRIVATE _GNU_SOURCE)
 target_include_directories(linbox-controller PRIVATE src)
 target_link_libraries(linbox-controller PRIVATE linbox-common)
+
+add_executable(linbox_seccomp_helper src/shim/seccomp-helper.c)
+target_compile_definitions(linbox_seccomp_helper PRIVATE _GNU_SOURCE)
 
 linbox_add_unit_test(NAME linbox_shim_unit SOURCE src/shim/linbox.test.c LIBRARIES linbox)
 linbox_add_unit_test(NAME linbox_shim_prng_unit SOURCE src/shim/prng.test.c LIBRARIES linbox)

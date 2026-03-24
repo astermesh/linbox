@@ -38,7 +38,7 @@ CTRL_PID=""
 sleep 0.1
 
 OUT2="$(LC_ALL=C TZ=UTC date '+%Y')"
-CURRENT_YEAR="$(env -u LD_PRELOAD date -u '+%Y')"
+CURRENT_YEAR="$(LD_PRELOAD= date -u '+%Y')"
 [[ "$OUT2" == "$CURRENT_YEAR" ]] || {
   echo "expected fallback to real year $CURRENT_YEAR after controller stop, got: $OUT2" >&2
   exit 1
