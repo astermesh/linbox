@@ -14,7 +14,7 @@
 | S02 | [Controller + SBP protocol](E01-proto/S02-controller-sbp/story.md) | Backlog |
 | S03 | [Random interception](E01-proto/S03-random/story.md) | Backlog |
 | S04 | [Seccomp safety net](E01-proto/S04-seccomp/story.md) | Backlog |
-| S05 | [Multi-process support](E01-proto/S05-multiprocess/story.md) | Backlog |
+| S05 | [Multi-process support](E01-proto/S05-multiprocess/story.md) | Done |
 | S06 | [Container + E2E](E01-proto/S06-container-e2e/story.md) | Backlog |
 | S07 | [Timer virtualization](E01-proto/S07-timers/story.md) | Backlog |
 | S08 | [Network interception](E01-proto/S08-network/story.md) | Backlog |

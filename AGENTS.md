@@ -192,6 +192,15 @@ Workflow:
 - Start task → add to "In Progress"
 - Finish task → remove from board (no "Completed" section)
 
+### Task and Story Status Discipline
+
+When a task is completed in code and verification passes:
+- Update the task status from `Backlog` to `Done`
+- If that was the last remaining task in the story, also update the story status to `Done`
+- If a task or story was effectively completed but status files were left stale, fix them immediately as part of the same change
+
+Do not leave implementation ahead of work tracking. Repository state, tests, and work status must agree.
+
 ### No Deferring Cheap Work
 
 - NEVER defer work because it seems "not important right now"
