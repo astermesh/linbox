@@ -98,6 +98,14 @@ Code that evolves together should live close together (same module, same directo
 ### Test Placement
 
 Tests must be co-located with the code they test (e.g., `foo.ts` → `foo.test.ts` in the same directory). Do not separate tests into a dedicated test tree.
+
+For LinBox-specific validation layers:
+- `*.test.c` — unit tests for pure logic
+- `*.preload.c` — standalone binaries run under `LD_PRELOAD`
+- `tests/pseudo-box/` — longer lifecycle pseudo-tests that exercise controller + shim + real process behavior without full container E2E
+- `tests/e2e/` — full container/service validation
+
+Every implementation task must add or update verification in at least one applicable layer. Prefer adding the smallest useful co-located test first, then extend pseudo-box or e2e coverage when lifecycle behavior changes.
 ### File Naming Conventions
 - Use lowercase, hyphens for spaces (e.g., `canvas-renderer.ts`)
 
