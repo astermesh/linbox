@@ -7,9 +7,16 @@ cd "$ROOT"
 required_files=(
   docker/Dockerfile.controller
   docker/Dockerfile.sandbox
+  docker/Dockerfile.pg-sandbox
+  docker/pg/entrypoint.sh
+  docker/pg/initdb.sql
   docker/seccomp-profile.json
   docker-compose.yml
   scripts/run-sandbox.sh
+  tests/e2e/linboxctl.py
+  tests/e2e/pg-time.sh
+  tests/e2e/pg-random.sh
+  tests/e2e/pg-determinism.sh
 )
 
 for path in "${required_files[@]}"; do
@@ -50,10 +57,13 @@ compose = Path('docker-compose.yml').read_text()
 for snippet in (
     'controller:',
     'sandbox:',
+    'pg-sandbox:',
     'docker/Dockerfile.controller',
     'docker/Dockerfile.sandbox',
+    'docker/Dockerfile.pg-sandbox',
     'seccomp=./docker/seccomp-profile.json',
     'linbox-run:/run/linbox',
+    'pg-data:/var/lib/postgresql/data',
 ):
     assert snippet in compose, snippet
 PY

@@ -1,0 +1,30 @@
+FROM debian:bookworm-slim AS builder
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential cmake \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+COPY . .
+RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build build --target linbox
+
+FROM postgres:17-bookworm
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-contrib \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /src/build/liblinbox.so /usr/local/lib/liblinbox.so
+COPY docker/pg/entrypoint.sh /usr/local/bin/linbox-pg-entrypoint.sh
+COPY docker/pg/initdb.sql /docker-entrypoint-initdb.d/10-linbox-init.sql
+RUN chmod +x /usr/local/bin/linbox-pg-entrypoint.sh
+
+ENV LD_PRELOAD=/usr/local/lib/liblinbox.so
+ENV LINBOX_SOCK=/run/linbox/linbox.sock
+ENV LINBOX_SHM=/linbox-shm
+ENV LINBOX_DISABLE_SECCOMP=0
+ENV TZ=UTC
+
+ENTRYPOINT ["/usr/local/bin/linbox-pg-entrypoint.sh"]
+CMD ["postgres"]

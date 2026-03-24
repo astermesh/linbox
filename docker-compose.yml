@@ -8,6 +8,7 @@ services:
       LINBOX_SHM: /linbox-shm
     volumes:
       - linbox-run:/run/linbox
+      - .:/workspace:ro
 
   sandbox:
     build:
@@ -31,5 +32,33 @@ services:
         echo "linbox sandbox boot";
         exec sleep infinity
 
+  pg-sandbox:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.pg-sandbox
+    depends_on:
+      - controller
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: linbox
+      POSTGRES_INITDB_ARGS: --encoding=UTF8
+      LD_PRELOAD: /usr/local/lib/liblinbox.so
+      LINBOX_SOCK: /run/linbox/linbox.sock
+      LINBOX_SHM: /linbox-shm
+      LINBOX_DISABLE_SECCOMP: 0
+      TZ: UTC
+    security_opt:
+      - seccomp=./docker/seccomp-profile.json
+    volumes:
+      - linbox-run:/run/linbox
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d linbox"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
 volumes:
   linbox-run:
+  pg-data:

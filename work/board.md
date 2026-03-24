@@ -15,7 +15,7 @@
 | S03 | [Random interception](E01-proto/S03-random/story.md) | Done |
 | S04 | [Seccomp safety net](E01-proto/S04-seccomp/story.md) | Done |
 | S05 | [Multi-process support](E01-proto/S05-multiprocess/story.md) | Done |
-| S06 | [Container + E2E](E01-proto/S06-container-e2e/story.md) | Backlog |
+| S06 | [Container + E2E](E01-proto/S06-container-e2e/story.md) | Done |
 | S07 | [Timer virtualization](E01-proto/S07-timers/story.md) | Backlog |
 | S08 | [Network interception](E01-proto/S08-network/story.md) | Backlog |
 | S09 | [Network simulation](E01-proto/S09-netem/story.md) | Backlog |

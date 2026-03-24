@@ -1,7 +1,7 @@
 # S06: Container + E2E
 
 **Epic:** Proto
-**Status:** Backlog
+**Status:** Done
 
 ## Required Reading
 
